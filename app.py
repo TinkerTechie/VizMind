@@ -7,7 +7,7 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 
 # Replace with your OpenAI API key or use local model
-openai.api_key = "YOUR_OPENAI_API_KEY"
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 @app.route('/')
 def home():
