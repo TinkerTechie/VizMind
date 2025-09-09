@@ -1,29 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Data Insights Chatbot</title>
+    <title>AI Data Insights Analyzer</title>
+    <!-- Link to the new stylesheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Google Fonts for a nicer typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-
 <body>
-    <div class="container">
-        <h1>📊 AI Data Insights Generator</h1>
 
-        <form action="/upload" method="POST" enctype="multipart/form-data" class="upload-form">
-            <input type="file" name="file" accept=".csv" required>
-            <button type="submit">Upload CSV</button>
-        </form>
+    <div class="container">
+        <header class="main-header">
+            <h1>📊 AI Data Insights Analyzer</h1>
+            <p>Upload your CSV to get instant written & spoken analysis.</p>
+        </header>
+
+        <!-- Flash Messages for Errors -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-message" role="alert">
+                    <strong>Error:</strong> {{ messages[0] }}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <main>
+            <form action="/upload" method="post" enctype="multipart/form-data" class="upload-form">
+                <label for="file-upload" class="custom-file-upload">
+                    Choose CSV File
+                </label>
+                <input id="file-upload" name="file" type="file" required accept=".csv"/>
+                <span id="file-name" class="file-name-display">No file chosen</span>
+                <button type="submit">Analyze Now</button>
+            </form>
+        </main>
 
         {% if insights %}
-        <div class="insights">
-            <h2>🔍 Generated Insights</h2>
-            <pre>{{ insights }}</pre>
-        </div>
+        <section id="results" class="results-section">
+            <h2>Analysis for <span class="highlight">{{ filename }}</span></h2>
+            
+            <!-- Audio Player for Voice Summary -->
+            {% if audio_file %}
+            <div class="audio-player-card">
+                <h3>Voice Summary</h3>
+                <audio controls autoplay class="w-full">
+                    <source src="{{ url_for('static', filename=audio_file) }}" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>
+            </div>
+            {% endif %}
+
+            <!-- Loop to display each insight in its own card -->
+            <div class="insights-grid">
+                {% for title, content in insights.items() %}
+                <div class="insight-card">
+                    <h3>{{ title }}</h3>
+                    <div class="content">
+                        <!-- The 'safe' filter is crucial to render the HTML tables correctly -->
+                        {{ content|safe }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
         {% endif %}
     </div>
-</body>
 
+    <script>
+        // Script to display the name of the chosen file
+        const fileInput = document.getElementById('file-upload');
+        const fileNameDisplay = document.getElementById('file-name');
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                fileNameDisplay.textContent = fileInput.files[0].name;
+            } else {
+                fileNameDisplay.textContent = 'No file chosen';
+            }
+        });
+    </script>
+
+</body>
 </html>
