@@ -3,6 +3,7 @@ import pandas as pd
 from gtts import gTTS
 import os
 import uuid
+import traceback # Import the traceback library
 
 # --- START OF THE FIX ---
 # Get the absolute path of the directory the script is in (e.g., /var/task/api)
@@ -103,7 +104,13 @@ def upload_file():
         audio_url = url_for('serve_generated_static', filename=audio_filename)
         return render_template('index.html', insights=insights, filename=filename, audio_url=audio_url)
     except Exception as e:
-        flash(f'An error occurred: {str(e)}')
+        # --- ADDED FOR DEBUGGING ---
+        # This will print the full error to your Vercel logs
+        print("--- AN ERROR OCCURRED IN UPLOAD_FILE ---")
+        print(traceback.format_exc())
+        print("--------------------------------------")
+        # ---------------------------
+        flash(f'An error occurred during analysis or voice generation. Please check the logs.')
         return redirect(url_for('home'))
 
 # Route to serve the generated static files (like audio) from the temporary directory
